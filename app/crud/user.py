@@ -1,16 +1,16 @@
 from sqlalchemy.orm import Session
 
-from app.models.base import User
+from app.models.base import User, Wallet
 from app.schemas.user import UserCreate
 
 
 def create_user(db: Session, user: UserCreate):
-    db_user = User(
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name
-    )
+    db_user = User(**user.model_dump())
     db.add(db_user)
+    db.flush()
+    new_wallet = Wallet(user_id=db_user.id, balance=0, currency="INR")
+    db.add(new_wallet)
     db.commit()
     db.refresh(db_user)
+    db_user.wallet_id = new_wallet.id
     return db_user
