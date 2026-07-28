@@ -1,3 +1,6 @@
+import uuid
+
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.base import User, Wallet
@@ -14,3 +17,7 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     db_user.wallet_id = new_wallet.id
     return db_user
+
+def get_user_by_id(db: Session, user_id: uuid.UUID):
+    stmt = select(User).where(User.id == user_id)
+    return db.scalar(stmt)
