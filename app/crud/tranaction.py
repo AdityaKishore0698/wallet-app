@@ -1,0 +1,28 @@
+import uuid
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models.base import Transaction, Wallet
+from app.schemas.transaction import (
+    TransactionCreate,
+    TransactionStatus,
+    TransactionType,
+)
+
+
+def create_transaction(db: Session, wallet_id: uuid.UUID, transaction_in: TransactionCreate):
+    wallet = db.scalar(select(Wallet).where(Wallet.id == wallet_id))
+    if not wallet:
+        raise ValueError("Wallet not found")
+    if transaction_in.type == TransactionType.CREDIT:
+        wallet.balance += transaction_in.amount
+    if transaction_in.type == TransactionType.DEBIT:
+        if wallet.balance < transaction_in.amount:
+            raise ValueError("Insufficient funds")
+        wallet.balance -= transaction_in.amount
+    transaction = Transaction(wallet_id=wallet.id, amount=transaction_in.amount, type=transaction_in.type, status=TransactionStatus.COMPLETED)
+    db.add(transaction)
+    db.commit()
+    db.refresh(transaction) 
+    return transaction
