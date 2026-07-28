@@ -1,10 +1,10 @@
 import uuid
 
-from app.crud.transaction import create_transaction
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.crud.transaction import create_transaction, get_transactions_by_wallet
 from app.schemas.transaction import TransactionCreate, TransactionResponse
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
@@ -20,3 +20,7 @@ def new_transaction(wallet_id: uuid.UUID, transaction_in: TransactionCreate, db:
             raise HTTPException(404, detail=str(e))
         if str(e) == "Insufficient funds":
             raise HTTPException(400, detail=str(e))
+
+@router.get("/{wallet_id}/history", response_model=list[TransactionResponse])
+def transaction_history(wallet_id: uuid.UUID, db: Session = db_dependency):
+    return get_transactions_by_wallet(db, wallet_id)
