@@ -24,6 +24,7 @@ class TransactionResponse(BaseModel):
     wallet_id: uuid.UUID
     amount: Decimal
     type: TransactionType
+    reference_id: uuid.UUID | None = None
     status: TransactionStatus
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)

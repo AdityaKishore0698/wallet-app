@@ -11,5 +11,5 @@ def get_wallet_by_id(db: Session, wallet_id: uuid.UUID):
     return db.scalar(stmt)
 
 def get_wallet_by_user_id(db: Session, user_id: uuid.UUID):
-    stmt = select(Wallet).where(Wallet.user_id.id == user_id)
+    stmt = select(Wallet).where(Wallet.user_id == user_id)
     return db.scalar(stmt)
