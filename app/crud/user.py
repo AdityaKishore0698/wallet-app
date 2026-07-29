@@ -3,12 +3,17 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.security import get_password_hash
 from app.models.base import User, Wallet
 from app.schemas.user import UserCreate
+from app.core.security import verify_password
 
 
 def create_user(db: Session, user: UserCreate):
-    db_user = User(**user.model_dump())
+    user_data = user.model_dump()
+    plain_password = user_data.pop("password")
+    user_data["hashed_password"] = get_password_hash(plain_password)
+    db_user = User(**user_data)
     db.add(db_user)
     db.flush()
     new_wallet = Wallet(user_id=db_user.id, balance=0, currency="INR")
@@ -21,3 +26,11 @@ def create_user(db: Session, user: UserCreate):
 def get_user_by_id(db: Session, user_id: uuid.UUID):
     stmt = select(User).where(User.id == user_id)
     return db.scalar(stmt)
+
+def authentic_user(db: Session, email: str, password: str):
+    user = db.scalar(select(User).where(User.email == email))
+    if not user:
+        return None
+    if not verify_password(password, user.hashed_password):
+        return user
+    return user
