@@ -3,10 +3,9 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, verify_password
 from app.models.base import User, Wallet
 from app.schemas.user import UserCreate
-from app.core.security import verify_password
 
 
 def create_user(db: Session, user: UserCreate):

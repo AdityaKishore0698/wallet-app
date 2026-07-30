@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 
 class UserCreate(BaseModel):
     email: EmailStr
+    password: str
     first_name: str
     last_name: str | None = None
 
