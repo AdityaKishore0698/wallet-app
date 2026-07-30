@@ -27,6 +27,6 @@ def create_transaction(db: Session, wallet_id: uuid.UUID, transaction_in: Transa
     db.refresh(transaction) 
     return transaction
 
-def get_transactions_by_wallet(db: Session, wallet_id: uuid.UUID):
-    stmt = select(Transaction).where(Transaction.wallet_id == wallet_id).order_by(Transaction.created_at.desc())
+def get_transactions_by_wallet(db: Session, wallet_id: uuid.UUID, skip: int = 0, limit: int = 100):
+    stmt = select(Transaction).where(Transaction.wallet_id == wallet_id).order_by(Transaction.created_at.desc()).offset(skip).limit(limit)
     return db.scalars(stmt).all()
